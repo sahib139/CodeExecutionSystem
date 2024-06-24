@@ -5,7 +5,10 @@ const codeSubmission = async (req,res)=>{
         const sourceCode = req.body.sourceCode;
         const stdInput = req.body.input;
         const language = req.body.language;  
-        const response = await codeExecution(sourceCode,stdInput,language);
+        const timeLimit = req.body.timeLimit;
+        const memoryLimit = req.body.memoryLimit;
+        const cpuCoreLimit = req.body.cpuCoreLimit;
+        const response = await codeExecution(sourceCode,stdInput,language,timeLimit,memoryLimit);
         return res.status(200).json({
             data:response,
             err:'',

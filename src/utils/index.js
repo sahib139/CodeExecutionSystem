@@ -4,8 +4,8 @@ const languageMap = {
     'cpp':cppCodeExecution,
 }
 
-const codeExecution = (sourceCode,stdInput,language)=>{
-    return languageMap[language](sourceCode,stdInput);
+const codeExecution = (sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit)=>{
+    return languageMap[language](sourceCode,stdInput,timeLimit,memoryLimit,cpuCoreLimit);
 }
 
 module.exports = {codeExecution};
