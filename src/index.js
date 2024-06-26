@@ -1,8 +1,10 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const APIroutes = require("./router/index");
+const { AppDataSource } = require("./config/database-config");
+require("reflect-metadata");
+const {PORT} = require("./config/server-config");
 
-const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(bodyParser.json());
@@ -15,7 +17,8 @@ app.get('/hi',(req,res)=>{
         msg:"hello",
     });
 })
-app.listen(PORT,()=>{
+app.listen(PORT,async ()=>{
     console.log(`server started on port ${PORT}`);
+    await AppDataSource.initialize();
 });
 
