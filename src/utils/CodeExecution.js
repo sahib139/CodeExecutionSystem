@@ -8,7 +8,7 @@ function generateUniqueString() {
         const randomNum = Math.floor(Math.random() * 100000);
         return `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}${now.getMilliseconds().toString().padStart(3, '0')}_${randomNum}`;
     } catch (error) {
-        return new Error("Unable to create unique due to Error:"+error);
+        throw "Unable to create unique due to Error:"+error;
     }
 }
 
@@ -47,14 +47,15 @@ async function CodeRun({sourceCode, stdInput, timeLimit, memoryLimit, cpuCoreLim
                 }
 
                 if(output.slice(0,5)=='Error'){
-                    reject(`stderr: ${output}`)
+                    resolve(`stderr: ${output}`)
                 }
 
                 resolve(`stdout: ${output}`);
             });
         });
     } catch (error) {
-        return new Error("Unable to execute the code.\nError:"+error);
+        console.log("Unable to execute the code.\nError:"+error);
+        throw "Unable to execute the code.\nError:";
     }
 }
 
@@ -83,14 +84,15 @@ async function CodeSubmit({sourceCode, inputTestcase, timeLimit, memoryLimit,lan
                 }
 
                 if(output.slice(0,5)=='Error'){
-                    reject(`stderr: ${output}`)
+                    resolve(`stderr: ${output}`)
                 }
 
                 resolve(`stdout: ${output}`);
             });
         });
     } catch (error) {
-        return new Error("Unable to execute the code.\nError:"+error);
+        console.log("Unable to execute the code.\nError:"+error);
+        throw "Unable to execute the code.\nError:";
     }
 }
 

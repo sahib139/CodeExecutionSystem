@@ -10,9 +10,9 @@ class SubmissionService{
 
     async run(sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit){
         try {
-            return codeRunExecution({sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit});
+            return await codeRunExecution({sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit});
         } catch (error) {
-            console.log("Error during submission of code due to "+error);
+            console.log("Error during running of code due to "+error);
             return error;
         }
     }
@@ -22,7 +22,7 @@ class SubmissionService{
             const question = await this.questionRepository.findOneBy({id:quesID});
 
             if (!question) {
-                throw new Error("Question not found");
+                throw "Question not found";
             }
 
             let  inputTestcase  = JSON.parse(question.inputTestcases);
@@ -32,6 +32,10 @@ class SubmissionService{
 
             const UserTestCaseOutput = await codeSubmitExecution({language,sourceCode,inputTestcase,timeLimit:question.timeLimit,memoryLimit:question.memoryLimit});
 
+            if(UserTestCaseOutput.slice(0,6)=='stderr'){
+                return UserTestCaseOutput;
+            }
+            
             const user_output = UserTestCaseOutput.split('ALL_TEST_CASES_OUTPUT:\n');
             const userTestResult = user_output[1].split('\nENDENDEND\n');
             userTestResult.pop()
