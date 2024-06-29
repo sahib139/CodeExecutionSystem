@@ -1,6 +1,7 @@
 const router = require("express").Router();
-const {codeSubmission} = require("../controller/codeSubmission-controller");
+const {codeRunner,codeSubmission} = require("../controller/codeSubmission-controller");
 
-router.post('/submission',codeSubmission);
+router.post('/run',codeRunner);
+router.post("/submit",codeSubmission);
 
 module.exports = router;

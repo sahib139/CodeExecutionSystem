@@ -12,13 +12,9 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 app.use(APIroutes);
 
-app.get('/hi',(req,res)=>{
-    res.status(200).json({
-        msg:"hello",
-    });
-})
 app.listen(PORT,async ()=>{
     console.log(`server started on port ${PORT}`);
     await AppDataSource.initialize();
+    console.log("Database Connected!");
 });
 

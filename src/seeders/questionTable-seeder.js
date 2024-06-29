@@ -32,6 +32,14 @@ async function seed() {
         timeLimit: 1, 
         memoryLimit: 512, 
       },
+      {
+        question:`Your task is to count for k=1,2,...,n the number of ways two knights can be placed on a k * k chessboard so that they do not attack each other.`,
+        inputDetail:`The only input line contains an integer n.`,
+        outputDetail:`Print n integers: the results.`,
+        constrains:`1 <= n <= 10000`,
+        inputTestcases:JSON.stringify([`8`,`2`,`1`]),
+        outputResult:JSON.stringify([`0\n6\n28\n96\n252\n550\n1056\n1848`,`0\n6`,`0`]),
+      }
     ];
 
     await Promise.all(
