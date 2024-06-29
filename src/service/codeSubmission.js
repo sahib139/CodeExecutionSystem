@@ -8,6 +8,39 @@ class SubmissionService{
         this.questionRepository = AppDataSource.getRepository(Questions);
     }
 
+    #convertTimeToSeconds(timeString) {
+        const timeParts = timeString.split(/[m\s]/).filter(Boolean);
+        const minutes = parseFloat(timeParts[0]);
+        const seconds = parseFloat(timeParts[1]);
+        return minutes * 60 + seconds;
+    }
+
+    #splitOutput(output) {
+        try {
+            
+            const parts = output.split(/(?=ALL_TEST_CASES_OUTPUT:|ALL_TEST_CASES_TIMING|ALL_TEST_CASES_MEMORY)/);
+        
+            const stdout = parts[0].split(/(?=ALL_TEST_CASES_OUTPUT:)/)[0].trim();
+            const allTestsOutput = parts.find(part => part.startsWith("ALL_TEST_CASES_OUTPUT:")).split("ALL_TEST_CASES_OUTPUT:")[1].trim();
+            const allTestsTiming = parts.find(part => part.startsWith("ALL_TEST_CASES_TIMING")).split("ALL_TEST_CASES_TIMING")[1].trim();
+            const allTestsMemory = parts.find(part => part.startsWith("ALL_TEST_CASES_MEMORY")).split("ALL_TEST_CASES_MEMORY")[1].trim();
+            
+            const outputArray = allTestsOutput.split("ENDENDEND").map(item => item.trim()).filter(item => item.length > 0);
+            const timingArray = allTestsTiming.split("ENDENDEND").map(item => item.trim()).filter(item => item.length > 0).map(this.#convertTimeToSeconds);
+            const memoryArray = allTestsMemory.split("ENDENDEND").map(item => parseFloat(item.trim()) / 1024).filter(item => !isNaN(item));
+            
+            return {
+                stdout,
+                outputArray,
+                timingArray,
+                memoryArray
+            };
+        } catch (error) {
+            throw error; 
+        }
+    }
+    
+
     async run(sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit){
         try {
             return await codeRunExecution({sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit});
@@ -35,19 +68,16 @@ class SubmissionService{
             if(UserTestCaseOutput.slice(0,6)=='stderr'){
                 return UserTestCaseOutput;
             }
-            
-            const user_output = UserTestCaseOutput.split('ALL_TEST_CASES_OUTPUT:\n');
-            const userTestResult = user_output[1].split('\nENDENDEND\n');
-            userTestResult.pop()
 
-            // Now check if the output matches the CorrectOutput
-            const AllTestCaseMatches = (JSON.parse(question.outputResult)).toString() === userTestResult.toString();
+            const {stdout,outputArray,timingArray,memoryArray} = this.#splitOutput(UserTestCaseOutput);
 
-            // also check if each output of the test case is under timeLimit
+            const AllTestCaseMatches = (JSON.parse(question.outputResult)).toString() === outputArray.toString();
 
-            
-            // return "results";
-            return user_output[0]+`\nSUCCESS:${AllTestCaseMatches}`;
+            const AllTestCaseTimingMatches = timingArray.every((testcaseTiming)=> testcaseTiming <= (question.timeLimit));
+
+            const AllTestCaseMemoryMatches = memoryArray.every((testcaseMemory) => testcaseMemory <= (question.memoryLimit));;
+
+            return stdout+`\nOUTPUT_SUCCESS:${AllTestCaseMatches}\nTIME_SUCCESS:${AllTestCaseTimingMatches}\nMEMORY_SUCCESS:${AllTestCaseMemoryMatches}`;
 
         } catch (error) {
             console.log("Error during submission of code due to "+error);

@@ -2,7 +2,7 @@
 
 # Function to generate current timestamp with milliseconds
 getCurrentDateTime() {
-    date '+%Y%m%d_%H%M%S%N'
+    date '+%Y%m%d_%H%M%S%3N'
 }
 
 # Check if the correct number of arguments is provided
@@ -19,7 +19,7 @@ time_limit=$3
 # Generate unique timestamp for file names
 timestamp=$(getCurrentDateTime)
 
-# Split content by delimiter "\n-----\n" into an array directly from the file
+# Split content by delimiter "\n" into an array directly from the file
 IFS=$'\n' read -r -d '' -a numbers < "$input_file"
 
 # Compile the source code
@@ -29,7 +29,7 @@ g++ -o "$base_name" "$source_code" 2> "compile_errors_$timestamp.txt"
 # Check compilation status
 if [ $? -eq 0 ]; then
     echo "Success: Compilation successful."
-    touch "AllOutput_$timestamp.txt"
+    touch "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt"
     # Loop through each input case and perform tasks
     for number in "${numbers[@]}"; do
         # Write the current test case to an input file
@@ -58,11 +58,18 @@ if [ $? -eq 0 ]; then
             echo "----------------"
             echo "ENDENDEND" >> "output_$timestamp.txt"
             cat "output_$timestamp.txt" >> "AllOutput_$timestamp.txt"
-            rm -f "output_$timestamp.txt" "time_$timestamp.txt"
+            echo "$real_time ENDENDEND" >> "AllOutput_Timing_$timestamp.txt"
+            echo "$memory_usage ENDENDEND" >> "AllOutput_Memory_$timestamp.txt"
+            rm -f "output_$timestamp.txt" "time_$timestamp.txt" 
         fi
     done
     echo "ALL_TEST_CASES_OUTPUT:"
     cat "AllOutput_$timestamp.txt"
+    echo "ALL_TEST_CASES_TIMING"
+    cat "AllOutput_Timing_$timestamp.txt"
+    echo "ALL_TEST_CASES_MEMORY"
+    cat "AllOutput_Memory_$timestamp.txt"
+    rm -f "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt"
 else
     echo "Error: Compilation failed."
     echo "Compilation errors:"
