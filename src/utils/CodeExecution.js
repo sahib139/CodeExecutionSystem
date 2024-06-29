@@ -71,7 +71,7 @@ async function CodeSubmit({sourceCode, inputTestcase, timeLimit, memoryLimit,lan
             fs.writeFileSync(path.join(__dirname,`${language}Files` ,sourceFileName), sourceCode);
             fs.writeFileSync(path.join(__dirname,`${language}Files`, inputFileName), inputTestcase.join('\n'));
     
-            const command = `sudo docker run --rm --cpus="1" --memory="${memoryLimit}m" -v ${__dirname}/${language}Files/submit.sh:/app/compile_and_run.sh -v ${__dirname}/${language}Files/${sourceFileName}:/app/myprogram.cpp -v ${__dirname}/${language}Files/${inputFileName}:/app/input.txt ${containerName} myprogram.cpp input.txt ${timeLimit}`;
+            const command = `sudo docker run --rm --cpus="1" --memory="${memoryLimit}m" -v ${__dirname}/${language}Files/submit.sh:/app/compile_and_run.sh -v ${__dirname}/${language}Files/${sourceFileName}:/app/myprogram.${language} -v ${__dirname}/${language}Files/${inputFileName}:/app/input.txt ${containerName} myprogram.${language} input.txt ${timeLimit}`;
             
             exec(command, (error, output) => {
 
