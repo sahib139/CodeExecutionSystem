@@ -2,6 +2,8 @@ const {CodeRun,CodeSubmit} = require("./CodeExecution");
 
 const DockerContainerMap = {
     "cpp":'cpp_runner',
+    "java":"java_runner",
+    "py":"python_runner"
 }
 
 const codeRunExecution = async ({sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit})=>{
