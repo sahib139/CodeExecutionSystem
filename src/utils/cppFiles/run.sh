@@ -30,19 +30,29 @@ if [ $? -eq 0 ]; then
   echo "Success: Compilation successful."
 
   # Run the executable with input redirection and time limit, capturing stdout and stderr
-  { time timeout "$time_limit"s ./"$base_name" < "$input_file" ; } > "output_$timestamp.txt" 2> "time_$timestamp.txt"
+  { /usr/bin/time -v timeout "$time_limit"s ./"$base_name" < "$input_file" ; } > "output_$timestamp.txt" 2> "time_$timestamp.txt"
   execution_status=$?
 
   # Check if the execution timed out
   if [ $execution_status -eq 124 ]; then
     echo "Error: Execution timed out."
   else
-    # Display the command output and timing information
     echo "Execution Output:"
     cat "output_$timestamp.txt"
-    echo
-    real_time=$(grep 'real' "time_$timestamp.txt" | awk '{print $2}' | sed 's/m/:/g' | awk -F: '{print ($1 * 60 + $2)"s"}')
+
+    # Display timing and resource usage information
+    real_time=$(grep 'Elapsed (wall clock) time' "time_$timestamp.txt" | awk '{for (i=8; i<=NF; i++) printf "%s ", $i; print ""}')
+    cpu_usage=$(grep 'Percent of CPU this job got' "time_$timestamp.txt" | awk -F ': ' '{print $2}')
+    memory_usage=$(grep 'Maximum resident set size' "time_$timestamp.txt" | awk '{for (i=6; i<=NF; i++) printf "%s ", $i; print ""}')
+    
     echo "Timing Information: $real_time"
+    echo "CPU Usage: $cpu_usage"
+    echo "Memory Usage: $memory_usage KB"
+    echo "----------------"
+    echo "ENDENDEND" >> "output_$timestamp.txt"
+    cat "output_$timestamp.txt" >> "AllOutput_$timestamp.txt"
+    echo "$real_time ENDENDEND" >> "AllOutput_Timing_$timestamp.txt"
+    echo "$memory_usage ENDENDEND" >> "AllOutput_Memory_$timestamp.txt"
     rm -f "output_$timestamp.txt" "time_$timestamp.txt"
   fi
 else
