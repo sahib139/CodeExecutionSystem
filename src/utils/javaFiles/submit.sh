@@ -54,7 +54,7 @@ javac "$source_code" 2> "compile_errors_$timestamp.txt"
 # Check compilation status
 if [ $? -eq 0 ]; then
     echo "Success: Compilation successful."
-    touch "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt"
+    touch "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt" "AllOutput_Cpu_$timestamp.txt"
     
     # Loop through each input case and perform tasks
     while IFS= read -r number || [ -n "$number" ]; do
@@ -86,6 +86,7 @@ if [ $? -eq 0 ]; then
             cat "output_$timestamp.txt" >> "AllOutput_$timestamp.txt"
             echo "$real_time ENDENDEND" >> "AllOutput_Timing_$timestamp.txt"
             echo "$memory_usage ENDENDEND" >> "AllOutput_Memory_$timestamp.txt"
+            echo "$cpu_usage ENDENDEND" >> "AllOutput_Cpu_$timestamp.txt"
             rm -f "output_$timestamp.txt" "time_$timestamp.txt" 
         fi
     done < "$input_file"
@@ -96,9 +97,11 @@ if [ $? -eq 0 ]; then
     cat "AllOutput_Timing_$timestamp.txt"
     echo "ALL_TEST_CASES_MEMORY"
     cat "AllOutput_Memory_$timestamp.txt"
+    echo "ALL_TEST_CASES_CPU"
+    cat "AllOutput_Cpu_$timestamp.txt"
     
     # Cleanup temporary files
-    rm -f "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt"
+    rm -f "AllOutput_$timestamp.txt" "AllOutput_Timing_$timestamp.txt" "AllOutput_Memory_$timestamp.txt" "AllOutput_Cpu_$timestamp.txt"
 else
     echo "Error: Compilation failed."
     echo "Compilation errors:"
