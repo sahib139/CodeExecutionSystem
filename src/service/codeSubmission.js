@@ -16,10 +16,10 @@ class SubmissionService{
     }
 
     #splitRunOutput(output){
-        const executionOutputMatch = output.match(/Execution Output:\n(.*?)\n/);
-        const timingInfoMatch = output.match(/Timing Information:\s*(.*?)\s*\n/);
-        const cpuUsageMatch = output.match(/CPU Usage:\s*(.*?)\s*\n/);
-        const memoryUsageMatch = output.match(/Memory Usage:\s*(.*?)\s*\n/);
+        const executionOutputMatch = output.match(/Execution Output:\s*([\s\S]*?)\s*Timing Information:/);
+        const timingInfoMatch = output.match(/Timing Information:\s*([\s\S]*?)\s*CPU Usage:/);
+        const cpuUsageMatch = output.match(/CPU Usage:\s*([\s\S]*?)\s*Memory Usage:/);
+        const memoryUsageMatch = output.match(/Memory Usage:\s*([\s\S]*?)\s*----------------/);
 
         const executionOutput = executionOutputMatch ? executionOutputMatch[1].trim() : null;
         const timingInfo = timingInfoMatch ? timingInfoMatch[1].trim() : null;
@@ -28,9 +28,9 @@ class SubmissionService{
 
         return {
             executionOutput,
-            timingInfo,
+            timingInfo:`${this.#convertTimeToSeconds(timingInfo)} sec`,
             cpuUsage,
-            memoryUsage
+            memoryUsage:`${parseFloat(memoryUsage.trim()) / 1024} MB`
         }
 
     }
@@ -66,20 +66,12 @@ class SubmissionService{
     async run(sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit){
         try {
             const UserOutput =  await codeRunExecution({sourceCode,stdInput,language,timeLimit,memoryLimit,cpuCoreLimit});
-            
+            console.log(UserOutput);
             if(UserOutput.slice(0,6)=='stderr'){
                 return UserOutput;
             }
 
             const {executionOutput,timingInfo,cpuUsage,memoryUsage} = this.#splitRunOutput(UserOutput);
-
-            console.log({
-                stdInput,
-                stdOutput:executionOutput,
-                RunningTime:timingInfo,
-                CpuUsage:cpuUsage,
-                MemoryUsage:memoryUsage,
-            });
 
             return {
                 stdInput,
